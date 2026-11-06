@@ -1,8 +1,18 @@
 import Image from "next/image";
 import type { Dictionary } from "@/dictionaries/en";
 
+/**
+ * What each access level can do, in the order of `rowLabels`
+ * (read the record, edit and close, move the return-to-play stage, documents and export).
+ * Mirrors the backend's clinical permission tiers.
+ */
+const ACCESS: readonly (readonly boolean[])[] = [
+  [true, true, true, true], // Care team: doctor, physiotherapist
+  [true, false, false, false], // Coaching staff: read-only
+  [false, false, false, false], // Everyone else: no clinical access by default
+];
+
 export function Medical({ t }: { t: Dictionary["medical"] }) {
-  const { staff, coach } = t;
   return (
     <div className="dark-sec" id="medical">
       <Image className="bigmark" src="/brand/logo-mark.png" alt="" width={640} height={516} aria-hidden="true" />
@@ -16,25 +26,27 @@ export function Medical({ t }: { t: Dictionary["medical"] }) {
           <p>{t.body}</p>
         </div>
         <div className="views rv">
-          <div className="view">
-            <div className="who"><i aria-hidden="true">{staff.initials}</i>{staff.who}</div>
-            <dl>
-              {staff.rows.map(([label, value]) => (
-                <div key={label}><dt>{label}</dt><dd>{value}</dd></div>
-              ))}
-            </dl>
-            <div className="logline">{staff.log}</div>
-          </div>
-          <div className="view">
-            <div className="who"><i aria-hidden="true">{coach.initials}</i>{coach.who}</div>
-            <dl>
-              <div><dt>{coach.player}</dt><dd>{coach.playerValue}</dd></div>
-              <div><dt>{coach.status}</dt><dd><span className="pill warn">{coach.statusValue}</span></dd></div>
-              <div><dt>{coach.injury}</dt><dd className="locked">{coach.injuryValue}</dd></div>
-              <div><dt>{coach.ret}</dt><dd className="locked">{coach.retValue}</dd></div>
-            </dl>
-            <div className="logline">{coach.log}</div>
-          </div>
+          {t.tiers.map((tier, tierIndex) => (
+            <div className="view" key={tier.tag}>
+              <span className="tier-tag">{tier.tag}</span>
+              <h3>{tier.roles}</h3>
+              <p className="tier-note">{tier.note}</p>
+              <ul className="caps">
+                {t.rowLabels.map((label, rowIndex) => {
+                  const allowed = ACCESS[tierIndex][rowIndex];
+                  return (
+                    <li className={allowed ? "yes" : "no"} key={label}>
+                      <span className="mark" aria-hidden="true">
+                        {allowed ? "✓" : "–"}
+                      </span>
+                      <span>{label}</span>
+                      <span className="sr-only">{allowed ? t.allowed : t.notAllowed}</span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
         </div>
         <ul className="points rv">
           {t.points.map((point) => (

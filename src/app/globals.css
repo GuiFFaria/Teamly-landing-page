@@ -93,9 +93,9 @@ p { margin: 0; }
 .lang { font-size: 13px; color: var(--muted); display: inline-flex; gap: 6px; }
 .lang b { color: var(--fg); font-weight: 600; }
 .lang a:hover { color: var(--fg); }
-.theme { width: 34px; height: 34px; border-radius: 999px; border: 1px solid var(--line-2); background: transparent; cursor: pointer; display: grid; place-items: center; color: var(--muted); }
+.theme { width: 34px; height: 34px; flex: none; padding: 0; line-height: 0; border-radius: 999px; border: 1px solid var(--line-2); background: transparent; cursor: pointer; display: grid; place-items: center; color: var(--muted); }
 .theme:hover { color: var(--fg); border-color: var(--muted); }
-.theme svg { width: 16px; height: 16px; }
+.theme svg { width: 16px; height: 16px; margin: 0; }
 .btn { display: inline-flex; align-items: center; gap: 8px; font: 500 14.5px var(--font); padding: 9px 18px; border-radius: 999px; border: 1px solid transparent; cursor: pointer; transition: transform 0.15s, background 0.15s, border-color 0.15s, filter 0.15s; white-space: nowrap; }
 .btn.solid { background: var(--btn-bg); color: var(--btn-fg); }
 .btn.solid:hover { filter: brightness(1.15); }
@@ -194,8 +194,9 @@ section { padding-block: 150px 0; position: relative; }
 .tour.paused .tab[aria-selected="true"]::after { animation: none; transform: scaleX(0); }
 @keyframes prog { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 .tour-frame { max-width: 1040px; width: 100%; }
-.tour-frame img { animation: fade 0.4s ease; }
-@keyframes fade { from { opacity: 0; transform: translateY(6px); } }
+.tour-track { display: grid; }
+.tour-slide { grid-area: 1 / 1; opacity: 0; transition: opacity 0.4s ease; pointer-events: none; min-width: 0; }
+.tour-slide.active { opacity: 1; pointer-events: auto; }
 .caption { color: var(--muted); font-size: 18px; max-width: 640px; min-height: 56px; letter-spacing: -0.01em; }
 .caption b { color: var(--fg); font-weight: 600; }
 
@@ -228,18 +229,17 @@ section { padding-block: 150px 0; position: relative; }
 .dark-sec .shead h2 span { color: #8ea3cc; }
 .dark-sec .shead p { color: #aebbd8; }
 .dark-sec .cap { color: #7fc4ff; }
-.views { margin-top: 56px; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; position: relative; }
-.view { background: #0a1c3a; border: 1px solid #16345f; border-radius: 22px; padding: 26px; display: grid; gap: 14px; align-content: start; }
-.view .who { display: flex; align-items: center; gap: 10px; font-weight: 500; }
-.view .who i { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-size: 12px; font-weight: 600; background: #16345f; }
-.view dl { margin: 0; }
-.view dl div { display: flex; justify-content: space-between; gap: 16px; padding: 11px 0; border-top: 1px solid #16345f; font-size: 15px; }
-.view dt { color: #8ea3cc; }
-.view dd { margin: 0; font-weight: 500; text-align: right; }
-.view .locked { color: #6f86b3; font-weight: 400; }
-.view .pill.warn { color: #fcd34d; background: rgba(252, 211, 77, 0.14); }
-.logline { display: flex; gap: 10px; align-items: center; background: rgba(11, 150, 252, 0.1); border-radius: 12px; padding: 11px 14px; font-size: 14px; color: #c9d8f5; }
-.logline::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #42b5fd; flex: none; }
+.views { margin-top: 56px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; position: relative; }
+.view { background: #0a1c3a; border: 1px solid #16345f; border-radius: 22px; padding: 26px; display: flex; flex-direction: column; gap: 14px; }
+.tier-tag { align-self: flex-start; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #7fc4ff; background: rgba(11, 150, 252, 0.12); padding: 4px 14px; clip-path: polygon(6% 0, 100% 0, 94% 100%, 0 100%); }
+.view h3 { font-size: 20px; line-height: 1.2; letter-spacing: -0.03em; }
+.tier-note { color: #aebbd8; font-size: 14.5px; }
+.caps { list-style: none; margin: auto 0 0; padding: 0; display: grid; }
+.caps li { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-top: 1px solid #16345f; font-size: 15px; }
+.caps .mark { width: 22px; height: 22px; border-radius: 7px; display: grid; place-items: center; flex: none; font-size: 13px; font-weight: 700; }
+.caps li.yes .mark { background: rgba(11, 150, 252, 0.18); color: #42b5fd; }
+.caps li.no { color: #6f86b3; }
+.caps li.no .mark { background: rgba(111, 134, 179, 0.12); color: #6f86b3; }
 .points { margin-top: 36px; display: flex; gap: 10px 28px; flex-wrap: wrap; font-size: 15px; color: #c4d2ee; position: relative; padding: 0; list-style: none; }
 .points li::before { content: "✓"; color: #42b5fd; margin-right: 8px; font-weight: 700; }
 
@@ -307,9 +307,11 @@ footer .copy { grid-column: 1 / -1; padding-top: 24px; border-top: 1px solid var
 @media (max-width: 1100px) { .f1 { left: -6px; } .f2 { right: -6px; } }
 @media (max-width: 960px) {
   .links { display: none; }
-  .float { position: relative; inset: auto; display: inline-flex; margin: 10px 8px 0 0; animation: none; }
-  .floats { display: flex; flex-wrap: wrap; }
+  .floats { display: none; }
   .stage .frame { -webkit-mask-image: none; mask-image: none; border-radius: 16px; border-bottom: 1px solid var(--line-2); }
+  .tour-track { display: flex; transform: translateX(calc(var(--pos, 0) * -100%)); transition: transform 0.56s cubic-bezier(0.65, 0, 0.35, 1); touch-action: pan-y; }
+  .tour-track.snap { transition: none; }
+  .tour-slide { flex: 0 0 100%; grid-area: auto; opacity: 1; transition: none; pointer-events: auto; }
   .cards3 { grid-template-columns: 1fr; } .card { min-height: 0; }
   .bento { grid-template-columns: 1fr; } .b, .b.w3 { grid-column: auto; min-height: 0; }
   .views { grid-template-columns: 1fr; }
@@ -327,7 +329,8 @@ footer .copy { grid-column: 1 / -1; padding-top: 24px; border-top: 1px solid var
 }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .float, .hero-shot, .tour-frame.shot, .tour-frame img { animation: none; }
+  .float, .hero-shot, .tour-frame.shot { animation: none; }
+  .tour-track, .tour-slide { transition: none; }
   .tab[aria-selected="true"]::after { animation: none; transform: scaleX(0); }
   .rv { animation: none; }
   .btn, .card, .plan, .b { transition: none; }
